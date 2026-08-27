@@ -41,13 +41,31 @@ app.use(express.static(path.join(__dirname, "public")));
    HEALTH CHECK
 ========================= */
 
-app.get("/health", (req, res) => {
+app.get("/health", async (req, res) => {
 
-    res.status(200).json({
-        status: "online",
-        service: "idle-steam",
-        timestamp: new Date().toISOString()
-    });
+    try {
+
+        await pool.query("SELECT 1");
+
+        res.status(200).json({
+            status: "online",
+            service: "idle-steam",
+            database: "connected",
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+
+        console.error("HEALTH DATABASE ERROR:", error);
+
+        res.status(503).json({
+            status: "offline",
+            service: "idle-steam",
+            database: "disconnected",
+            timestamp: new Date().toISOString()
+        });
+
+    }
 
 });
 

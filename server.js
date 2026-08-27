@@ -799,6 +799,69 @@ app.get("/api/activity", async (req, res) => {
     }
 
 });
+
+/* =========================
+   STEAM WORKER
+========================= */
+
+const WORKER_TOKEN = process.env.WORKER_TOKEN;
+
+function verifyWorker(req, res, next) {
+
+    const token = req.headers["x-worker-token"];
+
+    if (!WORKER_TOKEN || token !== WORKER_TOKEN) {
+
+        return res.status(401).json({
+            success: false,
+            message: "Worker unauthorized."
+        });
+
+    }
+
+    next();
+
+}
+
+
+/* =========================
+   WORKER HEARTBEAT
+========================= */
+
+app.post(
+    "/api/worker/heartbeat",
+    verifyWorker,
+    async (req, res) => {
+
+        try {
+
+            console.log(
+                "STEAM WORKER HEARTBEAT:",
+                new Date().toISOString()
+            );
+
+            res.json({
+                success: true,
+                status: "online",
+                timestamp: new Date().toISOString()
+            });
+
+        } catch (error) {
+
+            console.error(
+                "WORKER HEARTBEAT ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message: "Worker heartbeat failed."
+            });
+
+        }
+
+    }
+);
 /* =========================
    DELETE GAME
 ========================= */

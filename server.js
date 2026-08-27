@@ -7,7 +7,6 @@ require("dotenv").config();
 const pool = require("./db");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 
 /* =========================
@@ -831,6 +830,8 @@ app.get("/", (req, res) => {
    START SERVER
 ========================= */
 
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, "0.0.0.0", () => {
 
     console.log("=================================");
@@ -839,9 +840,4 @@ app.listen(PORT, "0.0.0.0", () => {
     console.log(`Running on http://localhost:${PORT}`);
     console.log("=================================");
 
-});
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`IdleSteam server running on port ${PORT}`);
 });

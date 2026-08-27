@@ -924,6 +924,77 @@ app.get(
 
     }
 );
+
+/* =========================
+   WORKER STOP JOB
+========================= */
+
+app.post(
+    "/api/worker/stop",
+    verifyWorker,
+    async (req, res) => {
+
+        try {
+
+            const { sessionId } = req.body;
+
+            if (!sessionId) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Session ID wajib diisi."
+                });
+
+            }
+
+            const result = await pool.query(
+                `SELECT
+                    idle_sessions.id AS session_id,
+                    idle_sessions.game_id,
+                    games.game_name,
+                    games.steam_app_id
+                 FROM idle_sessions
+                 INNER JOIN games
+                    ON games.id = idle_sessions.game_id
+                 WHERE idle_sessions.id = $1
+                 LIMIT 1`,
+                [sessionId]
+            );
+
+            if (result.rows.length === 0) {
+
+                return res.status(404).json({
+                    success: false,
+                    message: "Session tidak ditemukan."
+                });
+
+            }
+
+            const sessionData =
+                result.rows[0];
+
+            res.json({
+                success: true,
+                command: "stop",
+                session: sessionData
+            });
+
+        } catch (error) {
+
+            console.error(
+                "WORKER STOP ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message: "Gagal mengambil stop command."
+            });
+
+        }
+
+    }
+);
 /* =========================
    DELETE GAME
 ========================= */

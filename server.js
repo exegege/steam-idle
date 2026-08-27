@@ -863,6 +863,68 @@ app.post(
     }
 );
 /* =========================
+   WORKER GET JOB
+========================= */
+
+app.get(
+    "/api/worker/job",
+    verifyWorker,
+    async (req, res) => {
+
+        try {
+
+            const result = await pool.query(
+                `SELECT
+                    idle_sessions.id AS session_id,
+                    idle_sessions.user_id,
+                    idle_sessions.game_id,
+                    games.game_name,
+                    games.steam_app_id
+                 FROM idle_sessions
+                 INNER JOIN games
+                    ON games.id = idle_sessions.game_id
+                 WHERE idle_sessions.status = 'running'
+                 ORDER BY idle_sessions.started_at ASC
+                 LIMIT 1`
+            );
+
+
+            if (result.rows.length === 0) {
+
+                return res.json({
+                    success: true,
+                    job: null
+                });
+
+            }
+
+
+            const job = result.rows[0];
+
+
+            res.json({
+                success: true,
+                job: job
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "WORKER JOB ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message: "Gagal mengambil worker job."
+            });
+
+        }
+
+    }
+);
+/* =========================
    DELETE GAME
 ========================= */
 

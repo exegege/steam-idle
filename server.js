@@ -210,27 +210,42 @@ app.post("/api/login", async (req, res) => {
                 user.password
             );
 
-        if (!passwordMatch) {
+if (!passwordMatch) {
 
-            return res.status(401).json({
-                success: false,
-                message: "Email atau password salah."
-            });
+    return res.status(401).json({
+        success: false,
+        message: "Email atau password salah."
+    });
 
-        }
+}
 
-        req.session.userId = user.id;
-        req.session.username = user.username;
+req.session.userId = user.id;
+req.session.username = user.username;
 
-        res.json({
-            success: true,
-            message: "Login berhasil.",
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email
-            }
+req.session.save((err) => {
+
+    if (err) {
+
+        console.error("SESSION SAVE ERROR:", err);
+
+        return res.status(500).json({
+            success: false,
+            message: "Gagal menyimpan session."
         });
+
+    }
+
+    res.json({
+        success: true,
+        message: "Login berhasil.",
+        user: {
+            id: user.id,
+            username: user.username,
+            email: user.email
+        }
+    });
+
+});
 
     } catch (error) {
 
